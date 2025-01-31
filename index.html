@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi primera aplicacion con HTML + CSS + JS</title>
+    <title>Jimenez Jose - Progra-IV-2025</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 </head>
@@ -35,6 +35,17 @@
                                     </div>
                                 </div>
                                 <div class="row p-1">
+                                    <div class="col-3 col-md-2">MUNICIPIO</div>
+                                    <div class="col-9 col-md-4">
+                                        <input required v-model="municipio" type="text" name="txtMunicipioAlumno" id="txtMunicipioAlumno" class="form-control">
+                                    </div>
+                                </div>  
+                                <div class="row p-1">
+                                    <div class="col-3 col-md-2">DEPARTAMENTO</div>
+                                    <div class="col-9 col-md-4">                                       
+                                        <input required v-model="departamento" type="text" name="txtDepartamentoAlumno" id="txtDepartamentoAlumno" class="form-control">
+                                    </div>
+                                <div class="row p-1">
                                     <div class="col-3 col-md-2">TELEFONO</div>
                                     <div class="col-9 col-md-4">
                                         <input v-model="telefono" type="text" name="txtTelefonoAlumno" id="txtTelefonoAlumno" class="form-control">
@@ -46,6 +57,18 @@
                                         <input v-model="email" type="text" name="txtEmailAlumno" id="txtEmailAlumno" class="form-control">
                                     </div>
                                 </div>
+                                <div class="row p-1">
+                                    <div class="col-3 col-md-2">FECHA DE NACIMIENTO</div>
+                                    <div class="col-9 col-md-4">
+                                        <input v-model="fechaNacimiento" type="date" name="txtFechaNacimientoAlumno" id="txtFechaNacimientoAlumno" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="row p-1">
+                                    <div class="col-3 col-md-2">SEXO</div>
+                                    <div class="col-9 col-md-4">
+                                        <input v-model="sexo" type="text" name="txtSexoAlumno" id="txtSexoAlumno" class="form-control">
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-footer bg-dark text-center">
                                 <input type="submit" value="Guardar" class="btn btn-primary"> 
@@ -55,24 +78,37 @@
                     </form>
                 </div>
                 <div class="col-6">
+                    <div class="row p-2">
+                        <div class="col-12">
+                            <input type="text" v-model="busqueda" placeholder="Buscar" class="form-control">
+                        </div>
+                    </div>
                     <table class="table table-sm table-bordered table-hover">
                         <thead>
                             <tr>
                                 <th>CODIGO</th>
                                 <th>NOMBRE</th>
                                 <th>DIRECCION</th>
+                                <th>MUNICIPIO</th>
+                                <th>DEPARTAMENTO</th>
                                 <th>TELEFONO</th>
                                 <th>EMAIL</th>
+                                <th>FECHA DE NACIMIENTO</th>
+                                <th>SEXO</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="alumno in alumnos" @click="verAlumno(alumno)" :key="alumno.codigo">
+                            <tr v-for="alumno in alumnosFiltrados" @click="verAlumno(alumno)" :key="alumno.codigo">
                                 <td>{{ alumno.codigo }}</td>
                                 <td>{{ alumno.nombre }}</td>
                                 <td>{{ alumno.direccion }}</td>
+                                <td>{{ alumno.municipio }}</td>
+                                <td>{{ alumno.departamento }}</td>
                                 <td>{{ alumno.telefono }}</td>
                                 <td>{{ alumno.email }}</td>
+                                <td>{{ alumno.fechaNacimiento }}</td>
+                                <td>{{ alumno.sexo }}</td>
                                 <td>
                                     <button class="btn btn-danger btn-sm" 
                                         @click="eliminarAlumno(alumno)">DEL</button>
