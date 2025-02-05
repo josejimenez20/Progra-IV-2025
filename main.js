@@ -1,4 +1,4 @@
-const {createApp} = Vue;
+const { createApp } = Vue;
 
 createApp({
     data() {
@@ -9,12 +9,13 @@ createApp({
             nombre: '',
             direccion: '',
             municipio: '',
+            distrito: '',
             departamento: '',
             telefono: '',
             email: '',
             fechaNacimiento: '',
             sexo: ''
-        }
+        };
     },
     computed: {
         alumnosFiltrados() {
@@ -27,16 +28,25 @@ createApp({
     },
     methods: {
         eliminarAlumno(alumno) {
-            if (confirm(`¿Está seguro de eliminar el alumno ${alumno.nombre}?`)){
-                localStorage.removeItem(alumno.codigo);
-                this.listarAlumnos();
-            }
+            alertify.confirm(
+                "Confirmación",
+                `¿Está seguro de eliminar al alumno ${alumno.nombre}?`,
+                () => {
+                    localStorage.removeItem(alumno.codigo);
+                    this.listarAlumnos();
+                    alertify.success('Alumno eliminado correctamente');
+                },
+                () => {
+                    alertify.error('Operación cancelada');
+                }
+            );
         },
         verAlumno(alumno) {
             this.codigo = alumno.codigo;
             this.nombre = alumno.nombre;
             this.direccion = alumno.direccion;
             this.municipio = alumno.municipio;
+            this.distrito = alumno.distrito;
             this.departamento = alumno.departamento;
             this.telefono = alumno.telefono;
             this.email = alumno.email;
@@ -49,6 +59,7 @@ createApp({
                 nombre: this.nombre,
                 direccion: this.direccion,
                 municipio: this.municipio,
+                distrito: this.distrito,
                 departamento: this.departamento,
                 telefono: this.telefono,
                 email: this.email,
@@ -57,6 +68,7 @@ createApp({
             };
             localStorage.setItem(this.codigo, JSON.stringify(alumno));
             this.listarAlumnos();
+            alertify.success('Alumno guardado correctamente');
         },
         listarAlumnos() {
             this.alumnos = [];
@@ -71,3 +83,4 @@ createApp({
         this.listarAlumnos();
     }
 }).mount('#app');
+
