@@ -13,7 +13,9 @@ createApp({
             departamento: '',
             telefono: '',
             fechaNacimiento: '',
-            sexo: ''
+            sexo: '',
+            editando: false,
+            mostrarTabla: false
         };
     },
     computed: {
@@ -30,6 +32,16 @@ createApp({
         validarTelefono() {
             this.telefono = this.telefono.replace(/[^0-9-]/g, '');
         },
+        calcularEdad(fechaNacimiento) {
+            let hoy = new Date();
+            let nacimiento = new Date(fechaNacimiento);
+            let edad = hoy.getFullYear() - nacimiento.getFullYear();
+            let mes = hoy.getMonth() - nacimiento.getMonth();
+            if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+                edad--;
+            }
+            return edad;
+        },
         eliminarAlumno(alumno) {
             alertify.confirm(
                 "Confirmación",
@@ -38,7 +50,6 @@ createApp({
                     localStorage.removeItem(alumno.codigo);
                     this.listarAlumnos();
                     alertify.success(`Alumno ${alumno.nombre} eliminado correctamente`);
-
                 },
                 () => {
                     alertify.error('Cancelada');
@@ -55,8 +66,23 @@ createApp({
             this.telefono = alumno.telefono;
             this.fechaNacimiento = alumno.fechaNacimiento;
             this.sexo = alumno.sexo;
+            this.editando = true; 
         },
         guardarAlumno() {
+            if (this.alumnos.some(a => a.codigo === this.codigo && !this.editando)) {
+                alertify.error("El código ya está registrado");
+                return;
+            }
+
+            let edad = this.calcularEdad(this.fechaNacimiento);
+            if (edad < 18) {
+                alertify.warning("El alumno es menor de edad");
+            } else if (edad >= 18 && edad < 21) {
+                alertify.message("El alumno tiene entre 18 y 21 años");
+            } else {
+                alertify.success("El alumno es mayor de 21 años");
+            }
+            
             let alumno = {
                 codigo: this.codigo,
                 nombre: this.nombre,
@@ -68,17 +94,37 @@ createApp({
                 fechaNacimiento: this.fechaNacimiento,
                 sexo: this.sexo
             };
+
             localStorage.setItem(this.codigo, JSON.stringify(alumno));
+
             this.listarAlumnos();
-            alertify.success(`Alumno ${alumno.nombre} guardado correctamente`);
+
+            alertify.success(this.editando ? `Alumno ${alumno.nombre} actualizado` : `Alumno ${alumno.nombre} guardado correctamente`);
+
+            this.limpiarFormulario();
         },
         listarAlumnos() {
             this.alumnos = [];
             for (let i = 0; i < localStorage.length; i++) {
-                let clave = localStorage.key(i),
-                    valor = localStorage.getItem(clave);
+                let clave = localStorage.key(i);
+                let valor = localStorage.getItem(clave);
                 this.alumnos.push(JSON.parse(valor));
             }
+        },
+        limpiarFormulario() {
+            this.codigo = '';
+            this.nombre = '';
+            this.direccion = '';
+            this.municipio = '';
+            this.distrito = '';
+            this.departamento = '';
+            this.telefono = '';
+            this.fechaNacimiento = '';
+            this.sexo = '';
+            this.editando = false;
+        },
+        toggleTabla() {
+            this.mostrarTabla = !this.mostrarTabla;
         }
     },
     created() {
