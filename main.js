@@ -12,7 +12,6 @@ createApp({
             distrito: '',
             departamento: '',
             telefono: '',
-            email: '',
             fechaNacimiento: '',
             sexo: ''
         };
@@ -21,12 +20,16 @@ createApp({
         alumnosFiltrados() {
             return this.alumnos.filter(alumno => 
                 alumno.nombre.toLowerCase().includes(this.busqueda.toLowerCase()) ||
+                alumno.telefono.toLowerCase().includes(this.busqueda.toLowerCase()) ||
                 alumno.codigo.toLowerCase().includes(this.busqueda.toLowerCase()) ||
-                alumno.email.toLowerCase().includes(this.busqueda.toLowerCase())
+                alumno.fechaNacimiento.toLowerCase().includes(this.busqueda.toLowerCase()) 
             );
         }
     },
     methods: {
+        validarTelefono() {
+            this.telefono = this.telefono.replace(/[^0-9-]/g, '');
+        },
         eliminarAlumno(alumno) {
             alertify.confirm(
                 "Confirmación",
@@ -34,10 +37,11 @@ createApp({
                 () => {
                     localStorage.removeItem(alumno.codigo);
                     this.listarAlumnos();
-                    alertify.success('Alumno eliminado correctamente');
+                    alertify.success(`Alumno ${alumno.nombre} eliminado correctamente`);
+
                 },
                 () => {
-                    alertify.error('Operación cancelada');
+                    alertify.error('Cancelada');
                 }
             );
         },
@@ -49,7 +53,6 @@ createApp({
             this.distrito = alumno.distrito;
             this.departamento = alumno.departamento;
             this.telefono = alumno.telefono;
-            this.email = alumno.email;
             this.fechaNacimiento = alumno.fechaNacimiento;
             this.sexo = alumno.sexo;
         },
@@ -62,13 +65,12 @@ createApp({
                 distrito: this.distrito,
                 departamento: this.departamento,
                 telefono: this.telefono,
-                email: this.email,
                 fechaNacimiento: this.fechaNacimiento,
                 sexo: this.sexo
             };
             localStorage.setItem(this.codigo, JSON.stringify(alumno));
             this.listarAlumnos();
-            alertify.success('Alumno guardado correctamente');
+            alertify.success(`Alumno ${alumno.nombre} guardado correctamente`);
         },
         listarAlumnos() {
             this.alumnos = [];
@@ -83,4 +85,3 @@ createApp({
         this.listarAlumnos();
     }
 }).mount('#app');
-

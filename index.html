@@ -117,13 +117,13 @@
                             <div class="mb-2">
                                 <label class="form-label">Distrito</label>
                                 <input required v-model="distrito" type="text" class="form-control">
-                            <div class="mb-2">
-                                <label class="form-label">Teléfono</label>
-                                <input v-model="telefono" type="text" class="form-control">
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label">Email</label>
-                                <input v-model="email" type="email" class="form-control">
+                                <div class="mb-2">
+                                    <label class="form-label">Teléfono</label>
+                                    <input v-model="telefono" 
+                                           type="text" 
+                                           class="form-control" 
+                                           @input="validarTelefono">
+                                </div>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">Fecha de Nacimiento</label>
@@ -159,7 +159,6 @@
                             <th>Distrito</th>
                             <th>Telefono</th>
                             <th>Fecha de Nacimiento</th>
-                            <th>Email</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -173,7 +172,6 @@
                             <td>{{ alumno.distrito }}</td>
                             <td>{{ alumno.telefono }}</td>
                             <td>{{ alumno.fechaNacimiento }}</td>
-                            <td>{{ alumno.email }}</td>
                             <td class="text-center">
                                 <button class="btn btn-danger btn-sm" @click="eliminarAlumno(alumno)">Eliminar</button>
                             </td>
