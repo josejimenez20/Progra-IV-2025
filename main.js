@@ -1,6 +1,6 @@
 const {createApp} = Vue;
 const Dexie = window.Dexie,
-    db = new Dexie('db_academico');
+    db = new Dexie('dbSistema');
 
 createApp({
     components: {
