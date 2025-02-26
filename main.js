@@ -1,50 +1,41 @@
-const {createApp, ref} = Vue;
+const { createApp, ref } = Vue;
 const Dexie = window.Dexie,
-    db = new Dexie('db_academico');
+    db = new Dexie('db_codigo_estudiante');
 
-    const app = createApp({
-        components: {
-            alumno,
-            materia,
-            matricula,
-            inscripcion,
-            buscaralumno,
-            buscarmateria,
-            buscarmatricula,
-            buscarinscripcion 
-        },
-        data() {
-            return {
-                forms : {
-                    alumno: {mostrar: false},
-                    buscarAlumno: {mostrar: false},
-                    materia: {mostrar: false},
-                    buscarMateria: {mostrar: false},
-                    matricula: {mostrar: false},
-                    buscarMatricula: {mostrar: false},
-                    inscripcion: {mostrar: false},
-                    buscarInscripcion: {mostrar: false} 
-                },
-            };
-        },
-        methods: {
-            buscar(form, metodo) {
-                this.$refs[form][metodo]();
+const app = createApp({
+    components: {
+        autor,
+        libro,
+        buscarAutor,
+        buscarLibro
+    },
+    data() {
+        return {
+            forms: {
+                autor: { mostrar: false },
+                buscarAutor: { mostrar: false },
+                libro: { mostrar: false },
+                buscarLibro: { mostrar: false }
             },
-            abrirFormulario(componente) {
-                this.forms[componente].mostrar = !this.forms[componente].mostrar;
-            },
-            modificar(form, metodo, datos) {
-                this.$refs[form][metodo](datos);
-            }
+        };
+    },
+    methods: {
+        buscar(form, metodo) {
+            this.$refs[form][metodo]();
         },
-        created() {
-            db.version(1).stores({
-                alumnos: '++idAlumno, codigo, nombre, direccion, telefono, email',
-                materias: '++idMateria, codigo, nombre, uv',
-                matriculas: '++idMatricula, alumnoSeleccionado, fecha, periodo',
-                inscripciones: '++idInscripcion, alumnoSeleccionado, fecha, materias' 
-            });
+        abrirFormulario(componente) {
+            this.forms[componente].mostrar = !this.forms[componente].mostrar;
+        },
+        modificar(form, metodo, datos) {
+            this.$refs[form][metodo](datos);
         }
-    });
+    },
+    created() {
+        db.version(1).stores({
+            autores: '++idAutor, codigo, nombre, pais, telefono',
+            libros: '++idLibro, autorId, codigo, titulo, editorial, edicion'
+        });
+    }
+});
+
 app.mount('#app');
