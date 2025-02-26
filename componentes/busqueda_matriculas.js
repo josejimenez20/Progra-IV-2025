@@ -33,10 +33,9 @@ const buscarmatricula = {
                 'Eliminar Matrícula',
                 `¿Estás seguro de eliminar la matrícula de ${this.obtenerNombreAlumno(matricula.alumnoSeleccionado)} (${matricula.periodo})?`,
                 () => {
-                    // Si el usuario confirma, eliminar la matrícula
                     db.matriculas.delete(matricula.idMatricula).then(() => {
                         alertify.success('Matrícula eliminada correctamente.');
-                        this.listarMatriculas(); // Actualizar la lista de matrículas
+                        this.listarMatriculas();
                     }).catch(() => {
                         alertify.error('Error al eliminar la matrícula.');
                     });
