@@ -1,25 +1,25 @@
-const buscarLibro = {
+const buscarlibro = {
     data() {
         return {
             buscar: '',
-            buscarTipo: 'nombre',
+            buscarTipo: 'titulo',
             libros: [],
         }
     },
     methods: {
-        modificarLibro(libro) {
+        modificarLibro(libro){
             this.$emit('modificar', libro);
         },
         eliminarLibro(libro) {
-            alertify.confirm('Eliminar Libro', `¿Está seguro de eliminar el libro ${libro.nombre}?`, () => {
+            alertify.confirm('Eliminar libro', `¿Esta seguro de eliminar el libro ${libro.titulo}?`, () => {
                 db.libros.delete(libro.idLibro);
                 this.listarLibros();
-                alertify.success(`Libro ${libro.nombre} eliminado`);
+                alertify.success(`libro ${libro.titulo} eliminado`);
             }, () => { });
         },
         async listarLibros() {
             this.libros = await db.libros.filter(libro => libro[this.buscarTipo].toLowerCase().includes(this.buscar.toLowerCase())).toArray();
-        }
+        },
     },
     created() {
         this.listarLibros();
@@ -33,30 +33,31 @@ const buscarLibro = {
                             <th>BUSCAR POR</th>
                             <th>
                                 <select v-model="buscarTipo" class="form-control">
-                                    <option value="codigo">CÓDIGO</option>
-                                    <option value="nombre">NOMBRE</option>
-                                    <option value="autor">AUTOR</option>
+                                    <option value="isbn">ISBN</option> 
+                                    <option value="titulo">TITULO</option>
                                     <option value="editorial">EDITORIAL</option>
+                                    <option value="edicion">EDICION</option>
                                 </select>
                             </th>
-                            <th colspan="3">
+                            <th colspan="4">
                                 <input type="text" @keyup="listarLibros()" v-model="buscar" class="form-control">
                             </th>
                         </tr>
                         <tr>
-                            <th>CÓDIGO</th>
-                            <th>NOMBRE</th>
+                            <th>ISBN</th>
+                            <th>TITULO</th>
                             <th>AUTOR</th>
                             <th>EDITORIAL</th>
-                            <th></th>
+                            <th>EDICION</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="libro in libros" @click="modificarLibro(libro)" :key="libro.idLibro">
-                            <td>{{ libro.codigo }}</td>
-                            <td>{{ libro.nombre }}</td>
-                            <td>{{ libro.autor }}</td>
+                            <td>{{ libro.isbn }}</td>
+                            <td>{{ libro.titulo }}</td>
+                            <td>{{ this.autores[libro.idAutor].nombre }}</td>
                             <td>{{ libro.editorial }}</td>
+                            <td>{{ libro.edicion }}</td>
                             <td>
                                 <button class="btn btn-danger btn-sm" 
                                     @click.stop="eliminarLibro(libro)">DEL</button>

@@ -1,4 +1,5 @@
-const autor = {
+    
+ const autor = {
     props: ['forms'],
     data() {
         return {
@@ -7,7 +8,7 @@ const autor = {
             codigo: '',
             nombre: '',
             pais: '',
-            telefono: ''
+            telefono: '',
         }
     },
     methods: {
@@ -53,7 +54,7 @@ const autor = {
                         <div class="card-header bg-dark text-white">Registro de Autores</div>
                         <div class="card-body">
                             <div class="row p-1">
-                                <div class="col-3 col-md-2">CÓDIGO</div>
+                                <div class="col-3 col-md-2">CODIGO</div>
                                 <div class="col-9 col-md-4">
                                     <input required v-model="codigo" type="text" name="txtCodigoAutor" id="txtCodigoAutor" class="form-control">
                                 </div>
@@ -65,13 +66,13 @@ const autor = {
                                 </div>
                             </div>
                             <div class="row p-1">
-                                <div class="col-3 col-md-2">PAÍS</div>
-                                <div class="col-9 col-md-6">
+                                <div class="col-3 col-md-2">PAIS</div>
+                                <div class="col-9 col-md-8">
                                     <input required v-model="pais" type="text" name="txtPaisAutor" id="txtPaisAutor" class="form-control">
                                 </div>
                             </div>
                             <div class="row p-1">
-                                <div class="col-3 col-md-2">TELÉFONO</div>
+                                <div class="col-3 col-md-2">TELEFONO</div>
                                 <div class="col-9 col-md-4">
                                     <input v-model="telefono" type="text" name="txtTelefonoAutor" id="txtTelefonoAutor" class="form-control">
                                 </div>

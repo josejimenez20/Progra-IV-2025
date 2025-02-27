@@ -3,49 +3,67 @@ const libro = {
     data() {
         return {
             accion: 'nuevo',
-            libros: [],
             idLibro: '',
             codigo: '',
-            nombre: '',
-            autor: '',
-            editorial: '',
+            titulo:'',
+            editorial:'',
+            edicion:''
         }
     },
     methods: {
-        buscarLibro() {
-            this.forms.buscarLibro.mostrar = !this.forms.buscarLibro.mostrar;
-            this.$emit('buscar');
-        },
-        modificarLibro(libro) {
+    nuevoLibro() {
+        this.accion = 'nuevo';
+        this.idLibro = null;
+        this.limpiarFormulario();
+    },
+    limpiarFormulario() {
+        this.codigo = "";
+        this.titulo = "";
+        this.editorial = "";
+        this.edicion = "";
+
+        // Limpia las clases de validación visual
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.classList.remove('is-valid', 'is-invalid');
+        });
+    },
+    buscarLibro() {
+        this.forms.buscarLibro.mostrar = !this.forms.buscarLibro.mostrar;
+        this.$emit('buscar', this.actualizarDatos);
+    },
+    actualizarDatos(libro) {
+        if (libro) {
             this.accion = 'modificar';
             this.idLibro = libro.idLibro;
-            this.codigo = libro.codigo;
-            this.nombre = libro.nombre;
-            this.autor = libro.autor;
-            this.editorial = libro.editorial;
-        },
-        guardarLibro() {
-            let libro = {
-                codigo: this.codigo,
-                nombre: this.nombre,
-                autor: this.autor,
-                editorial: this.editorial
-            };
-            if (this.accion == 'modificar') {
-                libro.idLibro = this.idLibro;
-            }
-            db.libros.put(libro);
-            this.nuevoLibro();
-            this.listarLibros();
-        },
-        nuevoLibro() {
-            this.accion = 'nuevo';
-            this.idLibro = '';
-            this.codigo = '';
-            this.nombre = '';
-            this.autor = '';
-            this.editorial = '';
+            this.codigo = libro.codigo || "";
+            this.titulo = libro.titulo || "";
+            this.editorial = libro.editorial || "";
+            this.edicion = libro.edicion || "";
+
+        } else {
+            alertify.error("libro no encontrado");
         }
+    },
+    modificarLibro(libro) {
+        this.accion = 'modificar';
+        this.actualizarDatos(libro);
+    },
+    guardarLibro() {
+        let libro = {
+            codigo: this.codigo,
+            titulo: this.titulo,
+            editorial: this.editorial,
+            edicion: this.edicion
+        };
+
+        // Si estamos modificando, añadimos el id
+        if (this.accion === 'modificar' && this.idLibro) {
+            libro.idLibro = this.idLibro;
+        }
+        db.libros.put(libro);
+        this.nuevoLibro();
+    },
+
     },
     template: `
         <div class="row">
@@ -55,33 +73,41 @@ const libro = {
                         <div class="card-header bg-dark text-white">Registro de Libros</div>
                         <div class="card-body">
                             <div class="row p-1">
-                                <div class="col-3 col-md-2">CÓDIGO</div>
+                                <div class="col-3 col-md-2">ISBN</div>
                                 <div class="col-9 col-md-4">
-                                    <input required v-model="codigo" type="text" name="txtCodigoLibro" id="txtCodigoLibro" class="form-control">
+                                    <input required v-model="isbn" type="text" name="txtisbnLibro" id="txtIsbnLibro" class="form-control">
                                 </div>
                             </div>
                             <div class="row p-1">
-                                <div class="col-3 col-md-2">NOMBRE</div>
-                                <div class="col-9 col-md-6">
-                                    <input required pattern="[A-Za-zñÑáéíóú ]{3,150}" v-model="nombre" type="text" name="txtNombreLibro" id="txtNombreLibro" class="form-control">
-                                </div>
-                            </div>
-                            <div class="row p-1">
-                                <div class="col-3 col-md-2">AUTOR</div>
-                                <div class="col-9 col-md-8">
-                                    <input required pattern="[A-Za-zñÑáéíóú ]{3,100}" v-model="autor" type="text" name="txtAutorLibro" id="txtAutorLibro" class="form-control">
+                                <div class="col-3 col-md-2">TITULO</div>
+                                <div class="col-9 col-md-4">
+                                    <input required v-model="titulo" type="text" name="txtTituloLibro" id="txtTituloLibro" class="form-control">
                                 </div>
                             </div>
                             <div class="row p-1">
                                 <div class="col-3 col-md-2">EDITORIAL</div>
-                                <div class="col-9 col-md-8">
-                                    <input required pattern="[A-Za-zñÑáéíóú ]{3,100}" v-model="editorial" type="text" name="txtEditorialLibro" id="txtEditorialLibro" class="form-control">
+                                <div class="col-9 col-md-4">
+                                    <input required v-model="editorial" type="text" name="txtEditorialLibro" id="txtEditorialLibro" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row p-1">
+                                <div class="col-3 col-md-2">EDICION</div>
+                                <div class="col-9 col-md-4">
+                                    <input required v-model="edicion" type="text" name="txtEdicionLibro" id="txtEdicionLibro" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row p-1">
+                                <div class="col-3 col-md-2">AUTOR</div>
+                                <div class="col-9 col-md-4">
+                                    <select v-model="idAutor" class="form-select" @change ="cargarAutores">
+                                        <option v-for="autor in autores" :value="autor.idAutor">{{ autor.nombre }}</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer bg-dark text-center">
                             <input type="submit" value="Guardar" class="btn btn-primary"> 
-                            <input type="reset" value="Nuevo" class="btn btn-warning" @click="nuevoLibro">
+                            <input type="reset" value="Nuevo" class="btn btn-warning">
                             <input type="button" @click="buscarLibro" value="Buscar" class="btn btn-info">
                         </div>
                     </div>
