@@ -1,69 +1,63 @@
-const libro = {
+    
+ const libro = {
     props: ['forms'],
     data() {
         return {
             accion: 'nuevo',
+            libros: [],
+            autores: [],
             idLibro: '',
-            codigo: '',
-            titulo:'',
-            editorial:'',
-            edicion:''
+            idAutor: '',
+            isbn: '',
+            titulo: '',
+            editorial: '',
+            edicion: ''
         }
     },
     methods: {
-    nuevoLibro() {
-        this.accion = 'nuevo';
-        this.idLibro = null;
-        this.limpiarFormulario();
-    },
-    limpiarFormulario() {
-        this.codigo = "";
-        this.titulo = "";
-        this.editorial = "";
-        this.edicion = "";
-
-        // Limpia las clases de validación visual
-        document.querySelectorAll('.form-control').forEach(input => {
-            input.classList.remove('is-valid', 'is-invalid');
-        });
-    },
-    buscarLibro() {
-        this.forms.buscarLibro.mostrar = !this.forms.buscarLibro.mostrar;
-        this.$emit('buscar', this.actualizarDatos);
-    },
-    actualizarDatos(libro) {
-        if (libro) {
+        buscarLibro() {
+            this.forms.buscarLibro.mostrar = !this.forms.buscarLibro.mostrar;
+            this.$emit('buscar');
+        },
+        modificarLibro(libro) {
             this.accion = 'modificar';
             this.idLibro = libro.idLibro;
-            this.codigo = libro.codigo || "";
-            this.titulo = libro.titulo || "";
-            this.editorial = libro.editorial || "";
-            this.edicion = libro.edicion || "";
-
-        } else {
-            alertify.error("libro no encontrado");
+            this.idAutor = libro.idAutor;
+            this.isbn = libro.isbn;
+            this.titulo = libro.titulo;
+            this.editorial = libro.editorial;
+            this.edicion = libro.edicion;
+        },
+        guardarLibro() {
+            let libro = {
+                idAutor: this.idAutor,
+                isbn: this.isbn,
+                titulo: this.titulo,
+                editorial: this.editorial,
+                edicion: this.edicion
+            };
+            if (this.accion == 'modificar') {
+                libro.idLibro = this.idLibro;
+            }
+            db.libros.put(libro);
+            this.nuevoLibro();
+            this.listarLibros();
+        },
+        nuevoLibro() {
+            this.accion = 'nuevo';
+            this.idLibro = '';
+            this.idAutor = '';
+            this.isbn = '';
+            this.titulo = '';
+            this.editorial = '';
+            this.edicion = '';
+        },
+        cargarAutores() {
+            db.autores.toArray().then(autores => this.autores = autores);
         }
     },
-    modificarLibro(libro) {
-        this.accion = 'modificar';
-        this.actualizarDatos(libro);
-    },
-    guardarLibro() {
-        let libro = {
-            codigo: this.codigo,
-            titulo: this.titulo,
-            editorial: this.editorial,
-            edicion: this.edicion
-        };
-
-        // Si estamos modificando, añadimos el id
-        if (this.accion === 'modificar' && this.idLibro) {
-            libro.idLibro = this.idLibro;
-        }
-        db.libros.put(libro);
-        this.nuevoLibro();
-    },
-
+    created() {
+        this.cargarAutores();
     },
     template: `
         <div class="row">

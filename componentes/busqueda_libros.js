@@ -1,9 +1,11 @@
-const buscarlibro = {
+    
+ const buscarlibro = {
     data() {
         return {
             buscar: '',
             buscarTipo: 'titulo',
             libros: [],
+            autores:[]
         }
     },
     methods: {
@@ -11,18 +13,31 @@ const buscarlibro = {
             this.$emit('modificar', libro);
         },
         eliminarLibro(libro) {
-            alertify.confirm('Eliminar libro', `¿Esta seguro de eliminar el libro ${libro.titulo}?`, () => {
+            alertify.confirm('Eliminar Libro', `¿Esta seguro de eliminar el libro ${libro.nombre}?`, () => {
                 db.libros.delete(libro.idLibro);
                 this.listarLibros();
-                alertify.success(`libro ${libro.titulo} eliminado`);
+                alertify.success(`Libro ${libro.nombre} eliminado`);
             }, () => { });
         },
         async listarLibros() {
             this.libros = await db.libros.filter(libro => libro[this.buscarTipo].toLowerCase().includes(this.buscar.toLowerCase())).toArray();
         },
+        async cargarAutores() {
+                this.autores = await db.autores.toArray();
+        },
+        nuevoLibro() {
+            this.accion = 'nuevo';
+            this.idLibro = '';
+            this.idAutor = '';
+            this.isbn ='';
+            this.titulo ='';
+            this.editorial='';
+            this.edicion='';
+        }
     },
     created() {
         this.listarLibros();
+        this.cargarAutores();
     },
     template: `
         <div class="row">
