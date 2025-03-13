@@ -1,15 +1,16 @@
-    
- const materia = {
+const materia = {
     props: ['forms'],
     data() {
         return {
             accion: 'nuevo',
-            materias: [],
-            idMateria: '',
-            codigo: '',
-            nombre: '',
-            uv: '',
-        }
+            materia: {
+                idMateria: '',
+                codigo: '',
+                nombre: '',
+                uv: '',
+                codigo_transaccion: uuidv4()
+            }
+        };
     },
     methods: {
         buscarMateria() {
@@ -18,30 +19,28 @@
         },
         modificarMateria(materia) {
             this.accion = 'modificar';
-            this.idMateria = materia.idMateria;
-            this.codigo = materia.codigo;
-            this.nombre = materia.nombre;
-            this.uv = materia.uv;
+            this.materia = { ...materia };
         },
         guardarMateria() {
-            let materia = {
-                codigo: this.codigo,
-                nombre: this.nombre,
-                uv: this.uv
-            };
-            if (this.accion == 'modificar') {
-                materia.idMateria = this.idMateria;
-            }
+            let materia = { ...this.materia };
             db.materias.put(materia);
+            fetch(`private/modulos/materias/materia.php?accion=${this.accion}&materias=${JSON.stringify(materia)}`)
+                .then(response => response.json())
+                .then(data => {
+                    alertify.success(`Materia "${materia.nombre}" guardada con éxito`);
+                })
+                .catch(error => console.error(error));
             this.nuevoMateria();
-            this.listarMaterias();
         },
         nuevoMateria() {
             this.accion = 'nuevo';
-            this.idMateria = '';
-            this.codigo = '';
-            this.nombre = '';
-            this.uv = '';
+            this.materia = {
+                idMateria: '',
+                codigo: '',
+                nombre: '',
+                uv: '',
+                codigo_transaccion: uuidv4()
+            };
         }
     },
     template: `
@@ -54,25 +53,25 @@
                             <div class="row p-1">
                                 <div class="col-3 col-md-2">CODIGO</div>
                                 <div class="col-9 col-md-4">
-                                    <input required v-model="codigo" type="text" name="txtCodigoMateria" id="txtCodigoMateria" class="form-control">
+                                    <input required v-model="materia.codigo" type="text" name="txtCodigoMateria" id="txtCodigoMateria" class="form-control">
                                 </div>
                             </div>
                             <div class="row p-1">
                                 <div class="col-3 col-md-2">NOMBRE</div>
                                 <div class="col-9 col-md-6">
-                                    <input required pattern="[A-Za-zñÑáéíóú ]{3,150}" v-model="nombre" type="text" name="txtNombreMateria" id="txtNombreMateria" class="form-control">
+                                    <input required pattern="[A-Za-zñÑáéíóú ]{3,150}" v-model="materia.nombre" type="text" name="txtNombreMateria" id="txtNombreMateria" class="form-control">
                                 </div>
                             </div>
                             <div class="row p-1">
                                 <div class="col-3 col-md-2">UV</div>
                                 <div class="col-9 col-md-8">
-                                    <input required v-model="uv" type="text" name="txtUVMateria" id="txtUVMateria" class="form-control">
+                                    <input required v-model="materia.uv" type="text" name="txtUVMateria" id="txtUVMateria" class="form-control">
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer bg-dark text-center">
                             <input type="submit" value="Guardar" class="btn btn-primary"> 
-                            <input type="reset" value="Nuevo" class="btn btn-warning">
+                            <input type="reset" value="Nuevo" class="btn btn-warning" @click="nuevoMateria">
                             <input type="button" @click="buscarMateria" value="Buscar" class="btn btn-info">
                         </div>
                     </div>
