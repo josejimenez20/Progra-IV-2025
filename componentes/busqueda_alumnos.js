@@ -69,7 +69,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="alumno in alumnos" @click="modificarAlumno(alumno)" :key="alumno.idAlumno">
+                        <tr v-for="alumno in alumnos" @click="modificarAlumno(alumno)" :key="alumno.codigo_transaccion">
                             <td>{{ alumno.codigo }}</td>
                             <td>{{ alumno.nombre }}</td>
                             <td>{{ alumno.direccion }}</td>

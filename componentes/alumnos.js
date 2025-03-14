@@ -24,17 +24,20 @@
             this.alumno = {...alumno};
         },
         guardarAlumno() {
-            let alumno = { ...this.alumno };
+            let alumno = {...this.alumno};
             db.alumnos.put(alumno);
             fetch(`private/modulos/alumnos/alumno.php?accion=${this.accion}&alumnos=${JSON.stringify(alumno)}`)
                 .then(response => response.json())
                 .then(data => {
-                    alertify.success(`Alumno "${alumno.nombre}" guardado con éxito`);
+                    if( data != true ){
+                        alertify.error(data);
+                    }else{
+                        this.nuevoAlumno();
+                        this.$emit('buscar');
+                    }
                 })
-                .catch(error => console.error(error));
-            this.nuevoAlumno();
+                .catch(error => console.log(error));
         },
-        
         nuevoAlumno() {
             this.accion = 'nuevo';
             this.alumno = {

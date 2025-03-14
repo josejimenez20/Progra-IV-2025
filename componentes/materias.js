@@ -1,16 +1,17 @@
-const materia = {
+    
+ const materia = {
     props: ['forms'],
     data() {
         return {
             accion: 'nuevo',
-            materia: {
-                idMateria: '',
+            materias: [],
+            materia : {
                 codigo: '',
                 nombre: '',
                 uv: '',
                 codigo_transaccion: uuidv4()
-            }
-        };
+            },
+        }
     },
     methods: {
         buscarMateria() {
@@ -19,28 +20,31 @@ const materia = {
         },
         modificarMateria(materia) {
             this.accion = 'modificar';
-            this.materia = { ...materia };
+            this.materia = {...materia};
         },
         guardarMateria() {
-            let materia = { ...this.materia };
+            let materia = {...this.materia};
             db.materias.put(materia);
             fetch(`private/modulos/materias/materia.php?accion=${this.accion}&materias=${JSON.stringify(materia)}`)
                 .then(response => response.json())
                 .then(data => {
-                    alertify.success(`Materia "${materia.nombre}" guardada con éxito`);
+                    if( data != true ){
+                        alertify.error(data);
+                    }else{
+                        this.nuevoMateria();
+                        this.$emit('buscar');
+                    }
                 })
-                .catch(error => console.error(error));
-            this.nuevoMateria();
+                .catch(error => console.log(error));
         },
         nuevoMateria() {
             this.accion = 'nuevo';
             this.materia = {
-                idMateria: '',
                 codigo: '',
                 nombre: '',
                 uv: '',
                 codigo_transaccion: uuidv4()
-            };
+            }
         }
     },
     template: `
@@ -71,7 +75,7 @@ const materia = {
                         </div>
                         <div class="card-footer bg-dark text-center">
                             <input type="submit" value="Guardar" class="btn btn-primary"> 
-                            <input type="reset" value="Nuevo" class="btn btn-warning" @click="nuevoMateria">
+                            <input type="reset" value="Nuevo" class="btn btn-warning">
                             <input type="button" @click="buscarMateria" value="Buscar" class="btn btn-info">
                         </div>
                     </div>
