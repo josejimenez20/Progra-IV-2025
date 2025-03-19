@@ -1,5 +1,4 @@
-    
- const buscaralumno = {
+const buscaralumno = {
     data() {
         return {
             buscar: '',
@@ -11,78 +10,153 @@
         modificarAlumno(alumno){
             this.$emit('modificar', alumno);
         },
-        eliminarAlumno(alumno) {
-            alertify.confirm('Eliminar Alumno', `¿Esta seguro de eliminar el alumno ${alumno.nombre}?`, async() => {
-                let respuesta = await fetch(`private/modulos/alumnos/alumno.php?accion=eliminar&alumnos=${JSON.stringify(alumno)}`),
-                    data = await respuesta.json();
-                if( data != true ){
-                    alertify.error(data);
-                }else{
-                    db.alumnos.delete(alumno.codigo_transaccion);
-                    this.listarAlumnos();
-                    alertify.success(`Alumno ${alumno.nombre} eliminado`);
-                }
+        async eliminarAlumno(alumno) {
+            alertify.confirm('Eliminar Alumno', `¿Esta seguro de eliminar el alumno ${alumno.nombre}?`, async () => {
+                let alumnoEliminado = {...alumno};
+                alumnoEliminado.estado = 'eliminado';
+                await db.alumnos.put(alumnoEliminado);
+                console.log("Alumno eliminado localmente");
+                await this.listarAlumnos();
+                alertify.success(`Alumno ${alumno.nombre} eliminado`);
             }, () => { });
         },
+        async bajarAlumnos() {
+            console.log("Bajando alumnos...");
+            fetch('private/modulos/alumnos/alumno.php?accion=consultar')
+            .then(response => response.json())
+            .then(data =>{
+                this.alumnos = data;
+                db.alumnos.bulkAdd(data);
+                console.log("Alumnos bajados");
+            });
+        },
         async listarAlumnos() {
-            this.alumnos = await db.alumnos.filter(alumno => alumno[this.buscarTipo].toLowerCase().includes(this.buscar.toLowerCase())).toArray();
-            if (this.alumnos.length<1) {
-                fetch('private/modulos/alumnos/alumno.php?accion=consultar')
-                    .then(response => response.json())
-                    .then(data =>{
-                        this.alumnos = data;
-                        db.alumnos.bulkAdd(data);
-                    });
+            if(navigator.onLine){
+                await this.sincronizarDatos();
+            }
+            this.alumnos = await db.alumnos.filter(alumno => alumno[this.buscarTipo].toLowerCase().includes(this.buscar.toLowerCase())&&!(alumno.estado==='eliminado')).toArray()
+        },
+        async subirAlumnos() {
+            let alumnos = await db.alumnos.filter(alumno => alumno.estado === 'nuevo').toArray();
+            console.log(alumnos);
+            if (alumnos.length > 0) {
+                console.log("Subiendo alumnos nuevos...");
+                console.log(alumnos);
+                alumnos.forEach(async alumno => {
+                    let respuesta = await fetch(`private/modulos/alumnos/alumno.php?accion=nuevo&alumnos=${JSON.stringify(alumno)}`),
+                    data = await respuesta.json();
+                    if(!data.success){
+                        console.log(data.msg);
+                    }
+                    
+                });
+            }
+            alumnos = await db.alumnos.filter(alumno => alumno.estado === 'modificado').toArray();
+            if (alumnos.length > 0) {
+                console.log("Subiendo alumnos modificados...");
+                alumnos.forEach(async alumno => {
+                    let respuesta = await fetch(`private/modulos/alumnos/alumno.php?accion=modificar&alumnos=${JSON.stringify(alumno)}`),
+                    data = await respuesta.json();
+                    if(!data.success){
+                        console.log(data.msg);
+                    }
+                });
+            }
+          
+            alumnos = await db.alumnos.filter(alumno => alumno.estado === 'eliminado').toArray();
+            if (alumnos.length > 0) {
+                console.log("Eliminando alumnos...");
+                alumnos.forEach(async alumno => {
+                    let respuesta = await fetch(`private/modulos/alumnos/alumno.php?accion=eliminar&alumnos=${JSON.stringify(alumno)}`),
+                    data = await respuesta.json();
+                    if(!data.success){
+                        console.log(data.msg); 
+                    }
+                });
+
+                console.log("Los alumnos eliminados se eliminaron correctamente");
             }
         },
+        async sincronizarDatos(){
+            await this.subirAlumnos();
+            await db.alumnos.clear();
+            await this.bajarAlumnos();
+        }
     },
     created() {
         this.listarAlumnos();
     },
+    mounted() {
+        window.addEventListener('online', this.sincronizarDatos);
+    },
     template: `
-        <div class="row">
-            <div class="col-6">
-                <table class="table table-sm table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th>BUSCAR POR</th>
-                            <th>
-                                <select v-model="buscarTipo" class="form-control">
-                                    <option value="codigo">CODIGO</option>
-                                    <option value="nombre">NOMBRE</option>
-                                    <option value="direccion">DIRECCION</option>
-                                    <option value="telefono">TELEFONO</option>
-                                    <option value="email">EMAIL</option>
-                                </select>
-                            </th>
-                            <th colspan="4">
-                                <input type="text" @keyup="listarAlumnos()" v-model="buscar" class="form-control">
-                            </th>
-                        </tr>
-                        <tr>
-                            <th>CODIGO</th>
-                            <th>NOMBRE</th>
-                            <th>DIRECCION</th>
-                            <th>TELEFONO</th>
-                            <th>EMAIL</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="alumno in alumnos" @click="modificarAlumno(alumno)" :key="alumno.codigo_transaccion">
-                            <td>{{ alumno.codigo }}</td>
-                            <td>{{ alumno.nombre }}</td>
-                            <td>{{ alumno.direccion }}</td>
-                            <td>{{ alumno.telefono }}</td>
-                            <td>{{ alumno.email }}</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm" 
-                                    @click.stop="eliminarAlumno(alumno)">DEL</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white text-center">
+                    <h5 class="mb-0">🔍 Buscar Alumnos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Buscar por:</label>
+                            <select v-model="buscarTipo" class="form-select">
+                                <option value="codigo">Código</option>
+                                <option value="nombre">Nombre</option>
+                                <option value="direccion">Dirección</option>
+                                <option value="telefono">Teléfono</option>
+                                <option value="email">Email</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Término de búsqueda:</label>
+                            <input type="text" class="form-control" v-model="buscar" 
+                                   @keyup="listarAlumnos()" placeholder="Ingrese el dato a buscar...">
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark text-center">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                    <th>Dirección</th>
+                                    <th>Teléfono</th>
+                                    <th>Email</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="alumno in alumnos" :key="alumno.idAlumno" 
+                                    @click="modificarAlumno(alumno)" class="clickable-row">
+                                    <td>{{ alumno.codigo }}</td>
+                                    <td>{{ alumno.nombre }}</td>
+                                    <td>{{ alumno.direccion }}</td>
+                                    <td>{{ alumno.telefono }}</td>
+                                    <td>{{ alumno.email }}</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-danger btn-sm" 
+                                            @click.stop="eliminarAlumno(alumno)">
+                                            ❌
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    `
+    </div>
+`,
+style: `
+    .clickable-row {
+        cursor: pointer;
+        transition: background 0.2s ease-in-out;
+    }
+    .clickable-row:hover {
+        background-color: #f8f9fa !important;
+    }
+`
 };

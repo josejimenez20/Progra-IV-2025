@@ -10,7 +10,8 @@
                 direccion: '',
                 telefono: '',
                 email: '',
-                codigo_transaccion: uuidv4()
+                codigo_transaccion: uuidv4(),
+                estado: 'nuevo'
             },
         }
     },
@@ -22,21 +23,22 @@
         modificarAlumno(alumno) {
             this.accion = 'modificar';
             this.alumno = {...alumno};
+            this.alumno.estado = 'modificado';
         },
         guardarAlumno() {
             let alumno = {...this.alumno};
+            console.log(alumno.estado);
+            if(navigator.onLine){
+                delete alumno.estado;
+                fetch(`private/modulos/alumnos/alumno.php?accion=${this.accion}&alumnos=${JSON.stringify(alumno)}`)
+                    .then(response => response.json())
+                    .then(data => alertify.success("Alumno exitosamente guardado"))
+                    .catch(error => console.log(error));
+                alumno.estado = 'sincronizado';
+            }
             db.alumnos.put(alumno);
-            fetch(`private/modulos/alumnos/alumno.php?accion=${this.accion}&alumnos=${JSON.stringify(alumno)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if( data != true ){
-                        alertify.error(data);
-                    }else{
-                        this.nuevoAlumno();
-                        this.$emit('buscar');
-                    }
-                })
-                .catch(error => console.log(error));
+            this.nuevoAlumno();
+            this.$emit('buscar');
         },
         nuevoAlumno() {
             this.accion = 'nuevo';
@@ -46,56 +48,49 @@
                 direccion: '',
                 telefono: '',
                 email: '',
-                codigo_transaccion: uuidv4()
+                codigo_transaccion: uuidv4(),
+                estado: 'nuevo'
             };
         }
     },
     template: `
-        <div class="row">
-            <div class="col-6">
+    <div class="container mt-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-secondary text-white text-center">
+                <h4 class="mb-0">Registro de Alumnos</h4>
+            </div>
+            <div class="card-body">
                 <form id="frmAlumno" name="frmAlumno" @submit.prevent="guardarAlumno">
-                    <div class="card border-dark mb-3">
-                        <div class="card-header bg-dark text-white">Registro de Alumnos</div>
-                        <div class="card-body">
-                            <div class="row p-1">
-                                <div class="col-3 col-md-2">CODIGO</div>
-                                <div class="col-9 col-md-4">
-                                    <input required v-model="alumno.codigo" type="text" name="txtCodigoAlumno" id="txtCodigoAlumno" class="form-control">
-                                </div>
-                            </div>
-                            <div class="row p-1">
-                                <div class="col-3 col-md-2">NOMBRE</div>
-                                <div class="col-9 col-md-6">
-                                    <input required pattern="[A-Za-zñÑáéíóú ]{3,150}" v-model="alumno.nombre" type="text" name="txtNombreAlumno" id="txtNombreAlumno" class="form-control">
-                                </div>
-                            </div>
-                            <div class="row p-1">
-                                <div class="col-3 col-md-2">DIRECCION</div>
-                                <div class="col-9 col-md-8">
-                                    <input required v-model="alumno.direccion" type="text" name="txtDireccionAlumno" id="txtDireccionAlumno" class="form-control">
-                                </div>
-                            </div>
-                            <div class="row p-1">
-                                <div class="col-3 col-md-2">TELEFONO</div>
-                                <div class="col-9 col-md-4">
-                                    <input v-model="alumno.telefono" type="text" name="txtTelefonoAlumno" id="txtTelefonoAlumno" class="form-control">
-                                </div>
-                            </div>
-                            <div class="row p-1">
-                                <div class="col-3 col-md-2">EMAIL</div>
-                                <div class="col-9 col-md-6">
-                                    <input v-model="alumno.email" type="text" name="txtEmailAlumno" id="txtEmailAlumno" class="form-control">
-                                </div>
-                            </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Código</label>
+                            <input required v-model="alumno.codigo" type="text" class="form-control">
                         </div>
-                        <div class="card-footer bg-dark text-center">
-                            <input type="submit" value="Guardar" class="btn btn-primary"> 
-                            <input type="reset" value="Nuevo" class="btn btn-warning">
-                            <input type="button" @click="buscarAlumno" value="Buscar" class="btn btn-info">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre</label>
+                            <input required pattern="[A-Za-zñÑáéíóú ]{3,150}" v-model="alumno.nombre" type="text" class="form-control">
                         </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Dirección</label>
+                            <input required v-model="alumno.direccion" type="text" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono</label>
+                            <input v-model="alumno.telefono" type="text" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input v-model="alumno.email" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="text-center mt-4 d-flex justify-content-center gap-3">
+                        <button type="submit" class="btn btn-primary px-4">Guardar</button>
+                        <button type="reset" class="btn btn-warning px-4">Nuevo</button>
+                        <button type="button" @click="buscarAlumno" class="btn btn-info px-4">Buscar</button>
                     </div>
                 </form>
             </div>
         </div>
-    `
+    </div>
+`
 };
