@@ -20,17 +20,18 @@ const buscaralumno = {
                 alertify.success(`Alumno ${alumno.nombre} eliminado`);
             }, () => { });
         },
-        async bajarAlumnos() {
-            console.log("Bajando alumnos...");
+        async TomarAlumnos() {
+            console.log("tomando alumnos...");
             fetch('private/modulos/alumnos/alumno.php?accion=consultar')
             .then(response => response.json())
             .then(data =>{
                 this.alumnos = data;
                 db.alumnos.bulkAdd(data);
-                console.log("Alumnos bajados");
+                console.log("Alumnos tomados correctamente");
             });
         },
         async listarAlumnos() {
+            alertify.success(`Sincronizando datos alumnos...`);
             if(navigator.onLine){
                 await this.sincronizarDatos();
             }
@@ -40,7 +41,7 @@ const buscaralumno = {
             let alumnos = await db.alumnos.filter(alumno => alumno.estado === 'nuevo').toArray();
             console.log(alumnos);
             if (alumnos.length > 0) {
-                console.log("Subiendo alumnos nuevos...");
+                alertify.success(`Sincronizando datos alumnos...`);
                 console.log(alumnos);
                 alumnos.forEach(async alumno => {
                     let respuesta = await fetch(`private/modulos/alumnos/alumno.php?accion=nuevo&alumnos=${JSON.stringify(alumno)}`),
@@ -53,7 +54,8 @@ const buscaralumno = {
             }
             alumnos = await db.alumnos.filter(alumno => alumno.estado === 'modificado').toArray();
             if (alumnos.length > 0) {
-                console.log("Subiendo alumnos modificados...");
+                alertify.success(`Sincronizando datos alumnos...`);
+                //console.log("Subiendo alumnos modificados...");
                 alumnos.forEach(async alumno => {
                     let respuesta = await fetch(`private/modulos/alumnos/alumno.php?accion=modificar&alumnos=${JSON.stringify(alumno)}`),
                     data = await respuesta.json();
@@ -65,7 +67,8 @@ const buscaralumno = {
           
             alumnos = await db.alumnos.filter(alumno => alumno.estado === 'eliminado').toArray();
             if (alumnos.length > 0) {
-                console.log("Eliminando alumnos...");
+                alertify.success(`Sincronizando datos alumnos...`);
+                //console.log("Eliminando alumnos...");
                 alumnos.forEach(async alumno => {
                     let respuesta = await fetch(`private/modulos/alumnos/alumno.php?accion=eliminar&alumnos=${JSON.stringify(alumno)}`),
                     data = await respuesta.json();
@@ -80,7 +83,7 @@ const buscaralumno = {
         async sincronizarDatos(){
             await this.subirAlumnos();
             await db.alumnos.clear();
-            await this.bajarAlumnos();
+            await this.TomarAlumnos();
         }
     },
     created() {

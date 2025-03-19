@@ -16,6 +16,7 @@
     },
     methods: {
         buscarMateria() {
+            alertify.success("Sincronizando datos materias...");
             this.forms.buscarMateria.mostrar = !this.forms.buscarMateria.mostrar;
             this.$emit('buscar');
         },
