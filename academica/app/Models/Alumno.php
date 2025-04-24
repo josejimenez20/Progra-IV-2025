@@ -15,7 +15,7 @@ class Alumno extends Model
         'direccion',
         'telefono',
         'email',
-        'codigo_transaccion ',
+        'codigo_transaccion',
         'hash'
     ];
 }

@@ -21,8 +21,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     </head>
     <body class="antialiased">
-    <div id="app" ref="app">
-        <div class="container-fluid">
+        <div class="container-fluid" id="app">
             <nav class="navbar navbar-expand-lg bg-body-tertiary">
                 <div class="container-fluid">
                     <a class="navbar-brand" href="#">
@@ -47,6 +46,12 @@
                     </div>
                 </div>
             </nav>
+            <div class="container-fluid" id="appSistema">
+                <alumno v-show="forms.alumno.mostrar" :forms="forms" ref="alumno" @buscar="buscar('buscar_alumno', 'listarAlumnos')"></alumno>
+                <buscar_alumno v-show="forms.buscarAlumno.mostrar" ref="buscar_alumno" @modificar="modificar('alumno', 'modificarAlumno', $event)"></buscar_alumno>
+            </div>
         </div>
+
+        @vite('resources/js/app.js')
     </body>
 </html>

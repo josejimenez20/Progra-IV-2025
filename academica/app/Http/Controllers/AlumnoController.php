@@ -28,7 +28,8 @@ class AlumnoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Alumno::create($request->all());
+        return response()->json(['msg'=>'ok'], 200);
     }
 
     /**
@@ -52,14 +53,24 @@ class AlumnoController extends Controller
      */
     public function update(Request $request, Alumno $alumno)
     {
-        //
+        $alumno::where('codigo_transaccion', $request['codigo_transaccion'])
+            ->update([
+                'codigo' => $request['codigo'],
+                'nombre' => $request['nombre'],
+                'direccion' => $request['direccion'],
+                'telefono' => $request['telefono'],
+                'email' => $request['email'],
+                'hash' => $request['hash']
+            ]);
+        return response()->json(['msg'=>'ok'], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Alumno $alumno)
+    public function destroy(Request $request, Alumno $alumno)
     {
-        //
+        $alumno::where('codigo_transaccion', $request['codigo_transaccion'])->delete();
+        return response()->json(['msg'=>'ok'], 200);
     }
 }
