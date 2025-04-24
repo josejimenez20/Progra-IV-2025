@@ -26,4 +26,4 @@ Incluye funciones como:
 
 ---
 
-## Hecho por  Jiménez Jose 
+## Hecho por José Jiménez 
