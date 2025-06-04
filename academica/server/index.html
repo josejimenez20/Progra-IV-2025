@@ -104,11 +104,26 @@
     <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
-
+        window.mostrarNotificacion = false
         var socket = io.connect("http://127.0.0.1:3000", {'forceNew': true, 'transports': ['websocket']});
         socket.on('connection', function(){
             console.log('Conectado al servidor de Socket.io');
         });
+        function solicitarPermisoNotificaciones(){
+          Notification.requestPermission().then(result => {
+            permisoNotificar = result;
+            console.log(permisoNotificar);
+          });
+        }
+
+        function crearNotificacion(mensaje){
+            if(permisoNotificar === 'granted'){
+                let notificacion = new Notification('Chat de amigos', {
+                    body: mensaje,
+                    icon: 'notificar.png'
+                });
+            }
+        }
 
         txtMensajeAmigos.addEventListener('keyup',event=>{
             event.preventDefault();
@@ -122,12 +137,14 @@
             let ulMensajesAmigos = document.querySelector('#ulMensajesAmigos');
             ulMensajesAmigos.innerHTML += `<li class="list-group-item">${mensaje}</li>`;
             ulMensajesAmigos.scrollTop = ulMensajesAmigos.scrollHeight;
+            crearNotificacion(mensaje);
         });
 
         var method = 'POST';
         document.addEventListener('DOMContentLoaded', function(){
             listarAmigos();
             historialMensajesAmigos();
+            solicitarPermisoNotificaciones();
         });
         function historialMensajesAmigos(){
             fetch('/api/historial_chat')
